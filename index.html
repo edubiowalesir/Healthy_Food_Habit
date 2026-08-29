@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Plate &amp; My Day</title>
+<meta name="description" content="A daily food and study habit card for Classes 3 to 5. Works offline. All data stays on this device.">
+<meta name="theme-color" content="#2E6B4F">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ WELCOME / PROFILE PICKER ============ -->
+<section id="screen-welcome" class="screen is-on">
+  <div class="wrap wrap--narrow">
+    <header class="brand">
+      <span class="brand__mark">🍽️</span>
+      <h1 class="brand__title">My Plate &amp; My Day</h1>
+      <p class="brand__sub" id="welcome-school">A daily card for Classes 3&ndash;5</p>
+    </header>
+
+    <h2 class="section-head">Who is filling the card today?</h2>
+    <div id="profile-list" class="profile-list"></div>
+
+    <button class="btn btn--primary btn--block" id="btn-new-profile">+ Make my card</button>
+
+    <p class="fineprint">
+      Everything you write stays inside this device. Nothing is sent over the internet.
+    </p>
+    <button class="linkbtn" id="btn-open-teacher">Teacher corner</button>
+  </div>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section id="screen-setup" class="screen">
+  <div class="wrap wrap--narrow">
+    <button class="linkbtn linkbtn--back" data-go="welcome">&larr; Back</button>
+    <h2 class="section-head">Make your card</h2>
+
+    <div class="card idcard">
+      <div class="idcard__strip">STUDENT CARD</div>
+
+      <label class="field">
+        <span class="field__label">First name</span>
+        <input type="text" id="f-name" maxlength="20" autocomplete="off" placeholder="Aarav">
+        <span class="field__hint">First name only is enough.</span>
+      </label>
+
+      <div class="field-row">
+        <label class="field">
+          <span class="field__label">Roll number</span>
+          <input type="text" id="f-roll" maxlength="6" inputmode="numeric" placeholder="14">
+        </label>
+        <label class="field">
+          <span class="field__label">Class &amp; section</span>
+          <select id="f-class">
+            <option value="">Choose</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="field__label">Month and year you were born</span>
+        <input type="month" id="f-dob">
+        <span class="field__hint">We use this only to show your age. Ask at home if you are not sure.</span>
+      </label>
+
+      <label class="field">
+        <span class="field__label">Your height in centimetres <em>(you can skip this)</em></span>
+        <input type="number" id="f-height" min="80" max="200" inputmode="numeric" placeholder="128">
+      </label>
+
+      <div class="measure-note">
+        <strong>How to measure properly</strong>
+        <ol>
+          <li>Take off your shoes and stand straight against a wall.</li>
+          <li>Heels together, back touching the wall, look straight ahead.</li>
+          <li>A friend puts a flat scale on your head and marks the wall.</li>
+          <li>Measure from the floor to the mark with a tape.</li>
+        </ol>
+        <p>Measure once a month, on the same day, so you can watch yourself grow.</p>
+      </div>
+
+      <button class="btn btn--primary btn--block" id="btn-save-profile">Save my card</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MAIN APP ============ -->
+<section id="screen-main" class="screen">
+  <header class="topbar">
+    <div class="wrap topbar__inner">
+      <button class="who" id="who">
+        <span class="who__avatar" id="who-avatar">A</span>
+        <span>
+          <span class="who__name" id="who-name">Name</span>
+          <span class="who__meta" id="who-meta">Class</span>
+        </span>
+      </button>
+      <div class="streak" id="streak-chip" title="Days in a row">🔥 <b>0</b></div>
+    </div>
+  </header>
+
+  <nav class="tabs wrap" role="tablist">
+    <button class="tab is-on" data-tab="today" role="tab">Today</button>
+    <button class="tab" data-tab="week" role="tab">My week</button>
+    <button class="tab" data-tab="badges" role="tab">Badges</button>
+    <button class="tab" data-tab="grow" role="tab">I grow</button>
+    <button class="tab" data-tab="learn" role="tab">Learn</button>
+  </nav>
+
+  <main class="wrap">
+
+    <!-- ---- TODAY ---- -->
+    <div class="panel is-on" id="panel-today">
+      <p class="datestamp" id="datestamp"></p>
+
+      <div class="plate-card card">
+        <div class="plate-card__visual">
+          <svg id="thali" viewBox="0 0 220 220" aria-label="Your plate today"></svg>
+          <div class="katori" id="katori" hidden>
+            <span class="katori__count">0</span>
+            <span class="katori__label">Sometimes</span>
+          </div>
+        </div>
+        <div class="plate-card__side">
+          <h2 class="plate-card__title">My plate today</h2>
+          <p class="plate-card__msg" id="plate-msg">Tap a food below to start filling your plate.</p>
+          <ul class="legend" id="legend"></ul>
+        </div>
+      </div>
+
+      <div class="card water-card">
+        <h2 class="card__title">Glasses of water</h2>
+        <div class="glasses" id="glasses"></div>
+        <div class="counter">
+          <button class="round" id="water-minus" aria-label="One glass less">&minus;</button>
+          <span id="water-count">0</span>
+          <button class="round" id="water-plus" aria-label="One glass more">+</button>
+        </div>
+      </div>
+
+      <div class="card study-card">
+        <h2 class="card__title">My day</h2>
+        <div class="study-grid">
+          <button class="toggle" id="s-homework"><span class="toggle__icon">✏️</span><span>Homework done</span></button>
+          <button class="toggle" id="s-bedtime"><span class="toggle__icon">🌙</span><span>Slept on time</span></button>
+          <label class="stepper">
+            <span class="stepper__label">📖 Reading</span>
+            <span class="stepper__row">
+              <button class="round" data-step="read" data-by="-10">&minus;</button>
+              <b><span id="s-read">0</span> min</b>
+              <button class="round" data-step="read" data-by="10">+</button>
+            </span>
+          </label>
+          <label class="stepper">
+            <span class="stepper__label">🏃 Outdoor play</span>
+            <span class="stepper__row">
+              <button class="round" data-step="play" data-by="-15">&minus;</button>
+              <b><span id="s-play">0</span> min</b>
+              <button class="round" data-step="play" data-by="15">+</button>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="card picker">
+        <h2 class="card__title">What did you eat today?</h2>
+        <input type="search" id="food-search" class="search" placeholder="Search a food…" autocomplete="off">
+        <div class="chips" id="group-filter"></div>
+        <div class="food-grid" id="food-grid"></div>
+      </div>
+
+      <div class="card" id="chosen-card">
+        <h2 class="card__title">On my card today</h2>
+        <div class="chosen" id="chosen"></div>
+      </div>
+    </div>
+
+    <!-- ---- WEEK ---- -->
+    <div class="panel" id="panel-week">
+      <div class="card">
+        <h2 class="card__title">Food groups this week</h2>
+        <p class="card__note">Each bar shows how many days you ate from that group.</p>
+        <canvas id="chart-groups" data-height="200"></canvas>
+      </div>
+      <div class="card">
+        <h2 class="card__title">Water this week</h2>
+        <canvas id="chart-water" data-height="180"></canvas>
+      </div>
+      <div class="card">
+        <h2 class="card__title">Reading minutes this week</h2>
+        <canvas id="chart-read" data-height="180"></canvas>
+      </div>
+      <div class="card">
+        <h2 class="card__title">Ask yourself</h2>
+        <ul class="qlist" id="week-questions"></ul>
+      </div>
+    </div>
+
+    <!-- ---- BADGES ---- -->
+    <div class="panel" id="panel-badges">
+      <div class="card">
+        <h2 class="card__title">My badges</h2>
+        <p class="card__note" id="badge-count">0 of 16 collected</p>
+        <div class="badges" id="badges"></div>
+      </div>
+    </div>
+
+    <!-- ---- GROW ---- -->
+    <div class="panel" id="panel-grow">
+      <div class="card">
+        <h2 class="card__title">How much have I grown?</h2>
+        <p class="card__note">This graph compares you only with your own past self. It is your growth, nobody else's.</p>
+        <div id="grow-empty" class="empty">Add your height once a month and a line will appear here.</div>
+        <canvas id="chart-height" data-height="200" hidden></canvas>
+        <p class="grow-summary" id="grow-summary"></p>
+        <div class="field-row field-row--tight">
+          <label class="field">
+            <span class="field__label">Height this month (cm)</span>
+            <input type="number" id="g-height" min="80" max="200" inputmode="numeric">
+          </label>
+          <button class="btn" id="btn-add-height">Add</button>
+        </div>
+        <details class="howto">
+          <summary>How do I measure correctly?</summary>
+          <ol>
+            <li>No shoes. Stand straight, back against the wall.</li>
+            <li>Heels together, eyes looking straight ahead.</li>
+            <li>Flat scale on the head, mark the wall.</li>
+            <li>Measure floor to mark with a tape, in centimetres.</li>
+          </ol>
+        </details>
+      </div>
+    </div>
+
+    <!-- ---- LEARN ---- -->
+    <div class="panel" id="panel-learn">
+      <div class="card">
+        <h2 class="card__title">Where does my food come from?</h2>
+        <p class="card__note">Sort the foods you ate today into plant and animal.</p>
+        <div class="sortbox">
+          <div class="sortbox__col"><h3>🌱 From plants</h3><div id="from-plant" class="chosen"></div></div>
+          <div class="sortbox__col"><h3>🐄 From animals</h3><div id="from-animal" class="chosen"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="card__title">The five parts of a thali</h2>
+        <div class="learn-grid" id="learn-groups"></div>
+      </div>
+      <div class="card">
+        <h2 class="card__title">Everyday foods and Sometimes foods</h2>
+        <p>There are no bad foods. Some foods are <b>Everyday foods</b> — dal, roti, rice, fruit,
+        vegetables, milk. Your body uses them all day long.</p>
+        <p>Others are <b>Sometimes foods</b> — jalebi, chips, cold drink, samosa. They are made for
+        festivals, birthdays and treats. Eating one does not make you bad. Eating them every single
+        day just leaves less room for the foods your body is waiting for.</p>
+        <p class="card__note">Drink water instead of cold drinks when you are thirsty, and always
+        wash your hands before eating.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="foot wrap">
+    <button class="linkbtn" data-go="welcome">Switch student</button>
+    <button class="linkbtn" id="btn-open-teacher-2">Teacher corner</button>
+  </footer>
+</section>
+
+<!-- ============ TEACHER ============ -->
+<section id="screen-teacher" class="screen">
+  <div class="wrap wrap--narrow">
+    <button class="linkbtn linkbtn--back" data-go="welcome">&larr; Back</button>
+    <h2 class="section-head">Teacher corner</h2>
+
+    <div class="card" id="pin-gate">
+      <label class="field">
+        <span class="field__label">Teacher PIN</span>
+        <input type="password" id="t-pin" inputmode="numeric" maxlength="8" placeholder="••••">
+        <span class="field__hint" id="pin-hint">First time here? Type any 4 digits to set the PIN.</span>
+      </label>
+      <button class="btn btn--primary btn--block" id="btn-pin">Open</button>
+    </div>
+
+    <div id="teacher-body" hidden>
+      <div class="card">
+        <label class="field">
+          <span class="field__label">School name (shown on the first screen)</span>
+          <input type="text" id="t-school" placeholder="Our school">
+        </label>
+        <button class="btn" id="btn-save-school">Save</button>
+      </div>
+
+      <div class="card">
+        <h3 class="card__title">Class participation, last 30 days</h3>
+        <div class="tablewrap"><table class="table" id="class-table"></table></div>
+      </div>
+
+      <div class="card">
+        <h3 class="card__title">Save and move data</h3>
+        <p class="card__note">Downloads stay on this computer until you move them yourself.</p>
+        <div class="btnrow">
+          <button class="btn" id="btn-csv">Download class summary (CSV)</button>
+          <button class="btn" id="btn-backup">Download full backup</button>
+          <label class="btn btn--ghost">Restore backup<input type="file" id="file-restore" accept="application/json" hidden></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="card__title">Remove a student card</h3>
+        <p class="card__note">This deletes that child's card and log from this device for good.</p>
+        <div id="delete-list" class="chosen"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/foods.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/rewards.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/teacher.js"></script>
+<script src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>
